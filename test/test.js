@@ -45,14 +45,16 @@ describe("Run", function() {
                         run.backupTomcatByServerNumber("2", function (error) {
                             if (error) throw error;
                             run.createTomcatReleaseFolder(releaseBackupFolderName, function (error) {
-                                if (error) throw error;
-                                done();
-                            })
+                                run.copyTomcatBackupIntoTomcatReleaseFolder(function (error) {
+                                    if (error) throw error;
+                                    done();
+                                });
+                            });
                         });
                     });
                 });
             });
-        })
+        });
 
     });
 });
