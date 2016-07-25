@@ -5,9 +5,11 @@ const fileSystem = require('fs');
 var copy = require("ncp").ncp;
 
 var releaseBackupFolderNamePlaceholder = "{folderName}";
-var releaseBackupLocation = "var/tmp/tomcatReleaseBackup_" + releaseBackupFolderNamePlaceholder;
-var tomcatReleaseLocation = "var/tmp/tomcatRelease_" + releaseBackupFolderNamePlaceholder;
+var releaseBackupLocation = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_tomcatReleaseBackup";
+var tomcatReleaseLocation = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_tomcatRelease";
+var releaseCandidateLocationBase = "/var/tmp/" + releaseBackupFolderNamePlaceholder + "_releaseCandidates";
 var tomcatBackupLocation = null;
+var releaseCandidateLocation = null;
 var tomcatLocation = "var/tomcat";
 var rootContext = "/";
 
@@ -57,7 +59,10 @@ exports.copyTomcatBackupIntoTomcatReleaseFolder = function (callback) {
  cd /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}
  sudo wget --user={user} --password={password} http://{domain}/{releaseCandidateURI}
  */
-
+exports.createReleaseCandidateFolder = function (folderName, callback) {
+    releaseCandidateLocation = rootContext + releaseCandidateLocationBase.replace(releaseBackupFolderNamePlaceholder, folderName);
+    fileSystem.mkdir(releaseCandidateLocation, callback);
+};
 
 /*Deployment steps*/
 
