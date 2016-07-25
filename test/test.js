@@ -6,21 +6,27 @@ var assert = require("chai").assert;
 var moment = require("moment");
 
 var releaseBackupFolderName = "";
+var rootContextForTests = "area";
 
 describe("Run", function() {
-    describe("prepReleaseBackupFolder()", function () {
 
-        before(function () {
-            releaseBackupFolderName = moment().format(run.dateTimeFormat);
-        });
+    before(function () {
+        releaseBackupFolderName = moment().format(run.dateTimeFormat);
+    });
 
+    describe("createTomcatBackupFolder()", function () {
         it("should create a folder without error", function (done) {
-            run.prepReleaseBackupFolder(releaseBackupFolderName, function (error) {
-                if (error) {
-                    throw error;
-                }
-                done();
-            });
+            try {
+                run.createTomcatBackupFolder(releaseBackupFolderName, function () {
+                    run.backupTomcatByServerNumber("1", function () {
+                        run.backupTomcatByServerNumber("2", function () {
+                            done();
+                        });
+                    });
+                }, rootContextForTests);
+            } catch (error){
+                throw error;
+            }
         });
     });
 });

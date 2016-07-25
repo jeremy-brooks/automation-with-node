@@ -2,12 +2,16 @@
  * Created by jbrooks on 08/07/2016.
  */
 const fileSystem = require('fs');
-var moment = require("moment");
+var ncp = require("ncp").ncp;
+
+var releaseBackupFolderNamePlaceholder = "{folderName}";
+var releaseBackupLocation = "/var/tmp/tomcatReleaseBackup_" + releaseBackupFolderNamePlaceholder;
+var tomcatBackupLocation = null;
 
 exports.dateTimeFormat = "YYYYMMDDThh-mm-ss";
-var releaseBackupFolderNamePlaceholder = "{folderName}";
-var rootContext = "area";
-var releaseBackupLocation = rootContext + "/var/tmp/tomcatReleaseBackup_" + releaseBackupFolderNamePlaceholder;
+exports.getTomcatBackupLocation = function () {
+    return tomcatBackupLocation;
+};
 
 /*Pre-deployment steps
  Take a backup of each servlet container (e.g. Apache Tomcat)
@@ -25,9 +29,46 @@ var releaseBackupLocation = rootContext + "/var/tmp/tomcatReleaseBackup_" + rele
 /*
  Take backup of all servlet containers state before release (e.g /{tomcat home}).
  sudo mkdir -p /var/tmp/tomcatReleaseBackup_{YYYYMMDDTHH-MM-SS}
+ */
+exports.createTomcatBackupFolder = function (folderName, callBack, rootContext) {
+    tomcatBackupLocation = "";
+    if (typeof rootContext === "string" && rootContext.length > 0){
+        tomcatBackupLocation = rootContext;
+    }
+    tomcatBackupLocation += releaseBackupLocation.replace(releaseBackupFolderNamePlaceholder, folderName);
+    fileSystem.mkdir(tomcatBackupLocation, callBack);
+};
+
+ /*
  sudo cp -rp /var/tomcat/server{#} /var/tmp/tomcatReleaseBackup_{YYYYMMDDTHH-MM-SS}/
  */
+exports.backupTomcatByServerNumber = function (serverNumber, callBack) {
+    ncp("area/var/tomcat/server" + serverNumber, tomcatBackupLocation + "/server" + serverNumber, callBack);
+};
 
+function copyFile(source, target, callBack) {
+    var callBackCalled = false;
+
+    var readSteam = fileSystem.createReadStream(source);
+    readSteam.on("error", function(err) {
+        done(err);
+    });
+    var writeStream = fileSystem.createWriteStream(target);
+    writeStream.on("error", function(err) {
+        done(err);
+    });
+    writeStream.on("close", function(ex) {
+        done();
+    });
+    readSteam.pipe(writeStream);
+
+    function done(error) {
+        if (!callBackCalled) {
+            callBack(error);
+            callBackCalled = true;
+        }
+    }
+}
 
 /*
  Start all servlet containers (e.g. Apache Tomcat).
@@ -40,6 +81,3 @@ var releaseBackupLocation = rootContext + "/var/tmp/tomcatReleaseBackup_" + rele
 
 /*Rollback steps*/
 
-exports.prepReleaseBackupFolder = function (folderName, callBack) {
-    fileSystem.mkdir(releaseBackupLocation.replace(releaseBackupFolderNamePlaceholder, folderName), callBack);
-};
