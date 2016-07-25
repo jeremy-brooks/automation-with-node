@@ -1,4 +1,14 @@
 {
   "name": "automation-with-node",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/mocha"
+  },
+  "dependencies": {
+    "moment": "^2.14.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
+  }
 }
