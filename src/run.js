@@ -46,30 +46,6 @@ exports.backupTomcatByServerNumber = function (serverNumber, callBack) {
     ncp("area/var/tomcat/server" + serverNumber, tomcatBackupLocation + "/server" + serverNumber, callBack);
 };
 
-function copyFile(source, target, callBack) {
-    var callBackCalled = false;
-
-    var readSteam = fileSystem.createReadStream(source);
-    readSteam.on("error", function(err) {
-        done(err);
-    });
-    var writeStream = fileSystem.createWriteStream(target);
-    writeStream.on("error", function(err) {
-        done(err);
-    });
-    writeStream.on("close", function(ex) {
-        done();
-    });
-    readSteam.pipe(writeStream);
-
-    function done(error) {
-        if (!callBackCalled) {
-            callBack(error);
-            callBackCalled = true;
-        }
-    }
-}
-
 /*
  Start all servlet containers (e.g. Apache Tomcat).
  /etc/init.d/tomcat{#} start
