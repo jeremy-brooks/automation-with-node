@@ -3,12 +3,24 @@
  */
 var run = require("../src/run");
 var assert = require("chai").assert;
+var moment = require("moment");
 
-describe('Array', function() {
-    describe('#indexOf()', function() {
-        it('should return -1 when the value is not present', function() {
-            assert.equal(-1, [1,2,3].indexOf(5));
-            assert.equal(-1, [1,2,3].indexOf(0));
+var releaseBackupFolderName = "";
+
+describe("Run", function() {
+    describe("prepReleaseBackupFolder", function () {
+
+        before(function () {
+            releaseBackupFolderName = moment().format(run.dateTimeFormat);
+        });
+
+        it("Creates a backup folder in /var/tmp with date time as name", function (done) {
+            run.prepReleaseBackupFolder(releaseBackupFolderName, function (error) {
+                if (error) {
+                    throw error;
+                }
+                done();
+            });
         });
     });
 });
