@@ -6,12 +6,13 @@ var assert = require("chai").assert;
 var moment = require("moment");
 
 var releaseBackupFolderName = "";
-var rootContextForTests = "area";
+var rootContextForTests = "area/";
 
 describe("Run", function() {
 
     before(function () {
         releaseBackupFolderName = moment().format(run.dateTimeFormat);
+        run.setRootContext(rootContextForTests);
     });
 
     describe("createTomcatBackupFolder()", function () {
@@ -23,7 +24,7 @@ describe("Run", function() {
                             done();
                         });
                     });
-                }, rootContextForTests);
+                });
             } catch (error){
                 throw error;
             }
