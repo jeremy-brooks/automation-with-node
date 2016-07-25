@@ -73,7 +73,7 @@ exports.createReleaseCandidateFolder = function (folderName, callback) {
  */
 exports.deleteOldApplicationFilesByServerNumberAndApplicationName = function (applicationName, serverNumber, callback) {
     var locationToClearOut = tomcatReleaseLocation + "/server" + serverNumber + "/" + applicationName;
-    rimraf(locationToClearOut, callback);
+    //rimraf(locationToClearOut, callback);
 };
 
 /*Deployment steps*/
