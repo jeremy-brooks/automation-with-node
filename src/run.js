@@ -3,6 +3,7 @@
  */
 const fileSystem = require('fs');
 var copy = require("ncp").ncp;
+var rimraf = require("rimraf");
 
 var releaseBackupFolderNamePlaceholder = "{folderName}";
 var releaseBackupLocation = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_tomcatReleaseBackup";
@@ -62,6 +63,17 @@ exports.copyTomcatBackupIntoTomcatReleaseFolder = function (callback) {
 exports.createReleaseCandidateFolder = function (folderName, callback) {
     releaseCandidateLocation = rootContext + releaseCandidateLocationBase.replace(releaseBackupFolderNamePlaceholder, folderName);
     fileSystem.mkdir(releaseCandidateLocation, callback);
+};
+
+/*
+ Delete any old application folders and war files from the servlet container
+ For example, if you are releasing a new version of map display, then remove its old expanded mom folder:
+ sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}
+ sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}.war
+ */
+exports.deleteOldApplicationFilesByServerNumberAndApplicationName = function (applicationName, serverNumber, callback) {
+    var locationToClearOut = tomcatReleaseLocation + "/server" + serverNumber + "/" + applicationName;
+    rimraf(locationToClearOut, callback);
 };
 
 /*Deployment steps*/

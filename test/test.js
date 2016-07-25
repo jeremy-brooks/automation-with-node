@@ -50,7 +50,19 @@ describe("Run", function() {
                                     if (error) throw error;
                                     run.createReleaseCandidateFolder(releaseBackupFolderName, function (error) {
                                         if (error) throw error;
-                                        done();
+                                        run.deleteOldApplicationFilesByServerNumberAndApplicationName("app", 1, function (error) {
+                                            if (error) throw error;
+                                            run.deleteOldApplicationFilesByServerNumberAndApplicationName("app.war", 1, function (error) {
+                                                if (error) throw error;
+                                                run.deleteOldApplicationFilesByServerNumberAndApplicationName("app", 2, function (error) {
+                                                    if (error) throw error;
+                                                    run.deleteOldApplicationFilesByServerNumberAndApplicationName("app.war", 2, function (error) {
+                                                        if (error) throw error;
+                                                        done();
+                                                    })
+                                                })
+                                            })  
+                                        })
                                     });
                                 });
                             });
