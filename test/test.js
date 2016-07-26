@@ -78,7 +78,7 @@ describe("Pre-deployment steps", function () {
             it("cd /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}", function () {
                
             });
-            it("sudo wget --user={nexusUser} --password={nexusPassword} http://{nexusDomain}/{releaseCandidateURI}", function () {
+            it("sudo wget --user={user} --password={password} http://{domain}/{releaseCandidateURI}", function () {
                
             });
         });
