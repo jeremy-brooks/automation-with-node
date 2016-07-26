@@ -5,6 +5,7 @@
     "test": "node ./node_modules/mocha/bin/mocha"
   },
   "dependencies": {
+    "fs-extra": "^0.30.0",
     "moment": "^2.14.1",
     "ncp": "^2.0.0",
     "rimraf": "^2.5.4"
