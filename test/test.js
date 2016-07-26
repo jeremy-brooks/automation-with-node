@@ -3,6 +3,7 @@ var fileSystem = require("fs-extra");
 var moment = require("moment");
 var path = require("path");
 var rimraf = require("rimraf");
+var automate = require("../src/automate");
 
 describe("Pre-deployment steps", function () {
 
@@ -43,9 +44,12 @@ describe("Pre-deployment steps", function () {
         });
         describe("Take backup of all servlet containers state before release (e.g /{tomcat home})", function () {
             it("sudo mkdir -p /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup", function (done) {
-                fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
+                automate.createFolder(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
                     if (error) throw error;
-                    done();
+                    fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
+                        if (error) throw error;
+                        done();
+                    });
                 });
             });
             it("sudo cp -rp /var/tomcat/server{#} /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup/", function () {
