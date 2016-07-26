@@ -52,8 +52,11 @@ describe("Pre-deployment steps", function () {
                     });
                 });
             });
-            it("sudo cp -rp /var/tomcat/server{#} /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup/", function () {
-               
+            it("sudo cp -rp /var/tomcat/server{#} /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup/", function (done) {
+                fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp) + "/server1", function (error) {
+                    if (error) throw error;
+                    done();
+                });
             });
         });
         describe("Start all servlet containers (e.g. Apache Tomcat)", function () {
