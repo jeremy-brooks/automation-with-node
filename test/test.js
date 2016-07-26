@@ -1,41 +1,39 @@
 /**
  * Created by jbrooks on 25/07/2016.
  */
-var run = require("../src/run");
-var assert = require("chai").assert;
+var run = require("../src/automate");
 var moment = require("moment");
+var path = require("path");
+var rimraf = require("rimraf");
 
 var releaseBackupFolderName = "";
 var rootContextForTests = "area/";
 
+function clearUpTestDirectory(directoryToDelete, callback){
+    directoryToDelete = path.normalize(directoryToDelete);
+    directoryToDelete = path.resolve(directoryToDelete);
+    rimraf(directoryToDelete, callback);
+}
+
 describe("Run", function() {
 
-    before(function () {
-        releaseBackupFolderName = moment().format(run.dateTimeFormat);
-        run.setRootContext(rootContextForTests);
+    before(function (done) {
+        clearUpTestDirectory(rootContextForTests + "var/tmp/*", function (error) {
+            if (error) throw error;
+            releaseBackupFolderName = moment().format(run.dateTimeFormat);
+            run.setRootContext(rootContextForTests);
+            done();
+        });
     });
 
-    describe("Take a backup of each servlet container", function () {
-        it("should backup each erver without error", function (done) {
-            run.createTomcatBackupFolder(releaseBackupFolderName, function (error) {
-                if (error) throw error;
-                run.backupTomcatByServerNumber("1", function (error) {
-                    if (error) throw error;
-                    run.backupTomcatByServerNumber("2", function (error) {
-                        if (error) throw error;
-                        done();
-                    });
-                });
-            });
+    after(function (done) {
+        clearUpTestDirectory(rootContextForTests + "var/tmp/*", function (error) {
+            if (error) throw error;
+            done();
         });
     });
 
     describe("Prepare Apache Tomcat with the new release(s) so deploying them later is just a matter of copying the entire folder and starting Tomcat", function () {
-
-        before(function () {
-            releaseBackupFolderName = moment().format(run.dateTimeFormat);
-        });
-
         describe("Create a copy of the backup so you can prepare the new release for later", function () {
             it("completes without error", function (done) {
                 run.createTomcatBackupFolder(releaseBackupFolderName, function (error) {

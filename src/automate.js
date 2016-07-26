@@ -4,11 +4,12 @@
 const fileSystem = require('fs');
 var copy = require("ncp").ncp;
 var rimraf = require("rimraf");
+var path = require("path");
 
 var releaseBackupFolderNamePlaceholder = "{folderName}";
-var releaseBackupLocation = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_tomcatReleaseBackup";
+var releaseBackupLocation = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_backupOfTomcatBeforeRelease";
 var tomcatReleaseLocation = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_tomcatRelease";
-var releaseCandidateLocationBase = "/var/tmp/" + releaseBackupFolderNamePlaceholder + "_releaseCandidates";
+var releaseCandidateLocationBase = "var/tmp/" + releaseBackupFolderNamePlaceholder + "_releaseCandidates";
 var tomcatBackupLocation = null;
 var releaseCandidateLocation = null;
 var tomcatLocation = "var/tomcat";
@@ -72,9 +73,15 @@ exports.createReleaseCandidateFolder = function (folderName, callback) {
  sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}.war
  */
 exports.deleteOldApplicationFilesByServerNumberAndApplicationName = function (applicationName, serverNumber, callback) {
-    var locationToClearOut = tomcatReleaseLocation + "/server" + serverNumber + "/" + applicationName;
-    //rimraf(locationToClearOut, callback);
+    var locationToClearOut = tomcatReleaseLocation + "/server" + serverNumber + "/webapps/" + applicationName;
+    cleanDirectory(locationToClearOut, callback);
 };
+
+function cleanDirectory(directoryToDelete, callback) {
+    directoryToDelete = path.normalize(directoryToDelete);
+    directoryToDelete = path.resolve(directoryToDelete);
+    rimraf(directoryToDelete, callback);
+}
 
 /*Deployment steps*/
 
