@@ -1,34 +1,39 @@
-var assert = require("chai").assert;
-var fileSystem = require("fs-extra");
-var moment = require("moment");
-var path = require("path");
-var rimraf = require("rimraf");
-var automate = require("../src/automate");
+const assert = require("chai").assert;
+const fileSystem = require("fs-extra");
+const moment = require("moment");
+const path = require("path");
+const rimraf = require("rimraf");
+const automate = require("../src/automate");
+
+var timestamp = "";
+var dateTimeFormat = "YYYYMMDDThh-mm-ss_SSS";
+var timestampPlaceHolder = "{timestamp}";
+var preDeploymentBaseDirectory = "sandbox/pre-deployment";
+var tomcatReleaseBackupDir = preDeploymentBaseDirectory + "/var/tmp/" + timestampPlaceHolder + "_tomcatReleaseBackup";
+var tomcatReleaseDir = preDeploymentBaseDirectory + "/var/tmp/" + timestampPlaceHolder + "_tomcatRelease";
+
+before(function (done) {
+    timestamp = moment().format(dateTimeFormat);
+    tomcatReleaseBackupDir = tomcatReleaseBackupDir.replace(timestampPlaceHolder, timestamp);
+    tomcatReleaseDir = tomcatReleaseDir.replace(timestampPlaceHolder, timestamp);
+    fileSystem.mkdirs(preDeploymentBaseDirectory, function (error) {
+        if (error) throw error;
+        done();
+    });
+});
+
+after(function (done) {
+    var directoryToDelete = path.normalize(preDeploymentBaseDirectory);
+    directoryToDelete = path.resolve(directoryToDelete);
+    rimraf(directoryToDelete, function (error) {
+        if (error) throw error;
+        done();
+    });
+    tomcatReleaseBackupDir = tomcatReleaseBackupDir.replace(timestamp, timestampPlaceHolder);
+    tomcatReleaseDir = tomcatReleaseDir.replace(timestamp, timestampPlaceHolder);
+});
 
 describe("Pre-deployment steps", function () {
-
-    var timestamp = "";
-    var dateTimeFormat = "YYYYMMDDThh-mm-ss_SSS";
-    var timestampPlaceHolder = "{timestamp}";
-    var preDeploymentBaseDirectory = "sandbox/pre-deployment";
-    var tomcatReleaseBackupUri = preDeploymentBaseDirectory + "/var/tmp/" + timestampPlaceHolder + "_tomcatReleaseBackup";
-
-    before(function (done) {
-        timestamp = moment().format(dateTimeFormat);
-        fileSystem.mkdirs(preDeploymentBaseDirectory, function (error) {
-            if (error) throw error;
-            done();
-        });
-    });
-
-    after(function (done) {
-        var directoryToDelete = path.normalize(preDeploymentBaseDirectory);
-        directoryToDelete = path.resolve(directoryToDelete);
-        rimraf(directoryToDelete, function (error) {
-            if (error) throw error;
-            done();
-        });
-    });
     
     describe("Take a backup of each servlet container (e.g. Apache Tomcat)", function () {
         describe("Stop application servers individually", function () {
@@ -44,20 +49,20 @@ describe("Pre-deployment steps", function () {
         });
         describe("Take backup of all servlet containers state before release (e.g /{tomcat home})", function () {
             it("sudo mkdir -p /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup", function (done) {
-                automate.createFolder(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
+                automate.createFolder(tomcatReleaseBackupDir, function (error) {
                     if (error) throw error;
-                    fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
+                    fileSystem.access(tomcatReleaseBackupDir, function (error) {
                         if (error) throw error;
                         done();
                     });
                 });
             });
             it("sudo cp -rp /var/tomcat/server{#} /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup/", function (done) {
-                automate.copy("resources/dummyServletContainers", tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
+                automate.copy("resources/dummyServletContainers", tomcatReleaseBackupDir, function (error) {
                     if (error) throw error;
-                    fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp) + "/server1", function (error) {
+                    fileSystem.access(tomcatReleaseBackupDir + "/server1", function (error) {
                         if (error) throw error;
-                        fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp) + "/server2", function (error) {
+                        fileSystem.access(tomcatReleaseBackupDir + "/server2", function (error) {
                             if (error) throw error;
                             done();
                         });
@@ -76,12 +81,27 @@ describe("Pre-deployment steps", function () {
     });
 
     describe("Prepare Apache Tomcat with the new release(s) so deploying them later is just a matter of copying the entire folder and starting Tomcat.", function () {
-        describe("Create a ncp of the backup so you can prepare the new release for later", function () {
-            it("sudo mkdir -p /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}", function () {
-               
+        describe("Create a copy of the backup so you can prepare the new release for later", function () {
+            it("sudo mkdir -p /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}", function (done) {
+                automate.createFolder(tomcatReleaseDir, function (error) {
+                    if (error) throw error;
+                    fileSystem.access(tomcatReleaseDir, function (error) {
+                        if (error) throw error;
+                        done();
+                    });
+                });
             });
             it("sudo cp -rp /var/tmp/tomcatReleaseBackup_{YYYYMMDDTHH-MM-SS}/* /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/", function () {
-               
+                automate.copy(tomcatReleaseBackupDir, tomcatReleaseDir, function (error) {
+                    if (error) throw error;
+                    fileSystem.access(tomcatReleaseDir + "/server1", function (error) {
+                        if (error) throw error;
+                        fileSystem.access(tomcatReleaseDir + "/server2", function (error) {
+                            if (error) throw error;
+                            done();
+                        });
+                    });
+                });
             })
         });
         describe("Get ALL release candidates as detailed in release notes and put them onto the server ready for deployment", function () {
