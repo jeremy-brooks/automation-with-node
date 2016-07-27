@@ -1,0 +1,22 @@
+{
+  "dateTimeFormat": "YYYYMMDDThh-mm-ss_SSS",
+  "applications": [
+    {
+      "name": "app",
+      "releaseCandidateUri": "",
+      "deployedTo": 1,
+      "propertiesFiles": [
+        {
+          "name": "app.properties"
+        }
+      ],
+      "contextFiles": [
+        {
+          "name": "app.xml"
+        }
+      ]
+    }
+  ],
+  "isDatabaseRelease": true,
+  "isApplicationRelease": true,
+}

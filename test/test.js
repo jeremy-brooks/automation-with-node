@@ -53,9 +53,15 @@ describe("Pre-deployment steps", function () {
                 });
             });
             it("sudo cp -rp /var/tomcat/server{#} /var/tmp/{YYYYMMDDTHH-MM-SS}_tomcatReleaseBackup/", function (done) {
-                fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp) + "/server1", function (error) {
+                automate.copy("resources/dummyServletContainers", tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp), function (error) {
                     if (error) throw error;
-                    done();
+                    fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp) + "/server1", function (error) {
+                        if (error) throw error;
+                        fileSystem.access(tomcatReleaseBackupUri.replace(timestampPlaceHolder, timestamp) + "/server2", function (error) {
+                            if (error) throw error;
+                            done();
+                        });
+                    });
                 });
             });
         });
@@ -70,7 +76,7 @@ describe("Pre-deployment steps", function () {
     });
 
     describe("Prepare Apache Tomcat with the new release(s) so deploying them later is just a matter of copying the entire folder and starting Tomcat.", function () {
-        describe("Create a copy of the backup so you can prepare the new release for later", function () {
+        describe("Create a ncp of the backup so you can prepare the new release for later", function () {
             it("sudo mkdir -p /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}", function () {
                
             });
