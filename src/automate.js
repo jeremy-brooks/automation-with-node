@@ -9,3 +9,6 @@ exports.copy = function (source, destination, callback) {
     ncp(source, destination, callback);
 };
 
+exports.getReleaseCandidates = function (dummyReleaseCandidate, releaseCandidateDir, callback) {
+    fileSystem.copy(dummyReleaseCandidate, releaseCandidateDir, callback);
+};
