@@ -16,3 +16,7 @@ exports.getReleaseCandidates = function (dummyReleaseCandidate, releaseCandidate
 exports.deleteOldRelease = function (releaseToDelete, callback) {
     fileSystem.remove(releaseToDelete, callback);
 };
+
+exports.rename = function (file, renamedFile, callback) {
+    fileSystem.move(file, renamedFile, callback);
+};

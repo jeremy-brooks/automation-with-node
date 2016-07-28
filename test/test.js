@@ -174,13 +174,13 @@ describe("Pre-deployment steps", function () {
                 it("sudo cp -rp /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}/{releaseCandidate}.war /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/", function (done) {
                     var releaseCandidateToCopy = releaseCandidateDir + "/" + dummyReleaseCandidateName;
                     var copiedReleaseCandidate = tomcatReleaseDir + "/server#/webapps/" + dummyReleaseCandidateName;
-                    automate.copy(releaseCandidateToCopy, copiedReleaseCandidate.replace("#", "1"), function (error) {
+                    automate.copy(releaseCandidateToCopy, copiedReleaseCandidate.replace("server#", "server1"), function (error) {
                         assert.isNull(error);
-                        automate.copy(releaseCandidateToCopy, copiedReleaseCandidate.replace("#", "2"), function (error) {
+                        automate.copy(releaseCandidateToCopy, copiedReleaseCandidate.replace("server#", "server2"), function (error) {
                             assert.isNull(error);
-                            fileSystem.access(copiedReleaseCandidate.replace("#", "1"), function (error) {
+                            fileSystem.access(copiedReleaseCandidate.replace("server#", "server1"), function (error) {
                                 assert.isNull(error);
-                                fileSystem.access(copiedReleaseCandidate.replace("#", "2"), function (error) {
+                                fileSystem.access(copiedReleaseCandidate.replace("server#", "server2"), function (error) {
                                     assert.isNull(error);
                                     done();
                                 });
@@ -192,8 +192,23 @@ describe("Pre-deployment steps", function () {
         });
         describe("Rename new release candidates to appropriate application name (e.g. mom.war).", function () {
             describe("Refer to 'Additional technical details' for naming conventions.", function () {
-                it("sudo mv /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{releaseCandidate}.war /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}.war", function () {
-
+                it("sudo mv /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{releaseCandidate}.war /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}.war", function (done) {
+                    var releaseCandidateToRename = tomcatReleaseDir + "/server#/webapps/" + dummyReleaseCandidateName;
+                    var expectedNewName = "app.war";
+                    var expectedRenamedReleaseCandidate = releaseCandidateToRename.replace(dummyReleaseCandidateName, expectedNewName);
+                    automate.rename(releaseCandidateToRename.replace("server#", "server1"), expectedRenamedReleaseCandidate.replace("#", "1"), function (error) {
+                        assert.isNull(error);
+                        automate.rename(releaseCandidateToRename.replace("server#", "server2"), expectedRenamedReleaseCandidate.replace("#", "2"), function (error) {
+                            assert.isNull(error);
+                            fileSystem.access(expectedRenamedReleaseCandidate.replace("server#", "server1"), function (error) {
+                                assert.isNull(error);
+                                fileSystem.access(expectedRenamedReleaseCandidate.replace("server#", "server2"), function (error) {
+                                    assert.isNull(error);
+                                    done();
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
