@@ -11,11 +11,13 @@ var timestampPlaceHolder = "{timestamp}";
 var preDeploymentBaseDirectory = "sandbox/pre-deployment";
 var tomcatReleaseBackupDir = preDeploymentBaseDirectory + "/var/tmp/" + timestampPlaceHolder + "_tomcatReleaseBackup";
 var tomcatReleaseDir = preDeploymentBaseDirectory + "/var/tmp/" + timestampPlaceHolder + "_tomcatRelease";
+var releaseCandidateDir = preDeploymentBaseDirectory + "/var/tmp/" + timestampPlaceHolder + "_releaseCandidates";
 
 before(function (done) {
     timestamp = moment().format(dateTimeFormat);
     tomcatReleaseBackupDir = tomcatReleaseBackupDir.replace(timestampPlaceHolder, timestamp);
     tomcatReleaseDir = tomcatReleaseDir.replace(timestampPlaceHolder, timestamp);
+    releaseCandidateDir = releaseCandidateDir.replace(timestampPlaceHolder, timestamp);
     fileSystem.mkdirs(preDeploymentBaseDirectory, function (error) {
         if (error) throw error;
         done();
@@ -31,6 +33,7 @@ after(function (done) {
     });
     tomcatReleaseBackupDir = tomcatReleaseBackupDir.replace(timestamp, timestampPlaceHolder);
     tomcatReleaseDir = tomcatReleaseDir.replace(timestamp, timestampPlaceHolder);
+    releaseCandidateDir = releaseCandidateDir.replace(timestamp, timestampPlaceHolder);
 });
 
 describe("Pre-deployment steps", function () {
@@ -105,8 +108,14 @@ describe("Pre-deployment steps", function () {
             })
         });
         describe("Get ALL release candidates as detailed in release notes and put them onto the server ready for deployment", function () {
-            it("sudo mkdir -p /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}", function () {
-               
+            it("sudo mkdir -p /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}", function (done) {
+                automate.createFolder(releaseCandidateDir, function (error) {
+                    if (error) throw error;
+                    fileSystem.access(releaseCandidateDir, function (error) {
+                        if (error) throw error;
+                        done();
+                    });
+                });
             });
             it("cd /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}", function () {
                
