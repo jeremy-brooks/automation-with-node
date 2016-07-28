@@ -171,9 +171,23 @@ describe("Pre-deployment steps", function () {
         });
         describe("Copy ALL new release candidates to the correct servlet container in your 'tomcatRelease' folder.", function () {
             describe("Refer to 'Additional technical details' table for which Apache tomcat instance to put specific applications into", function () {
-                it("sudo cp -rp /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}/{releaseCandidate}.war /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/", function () {
-
-                })
+                it("sudo cp -rp /var/tmp/releaseCandidates_{YYYYMMDDTHH-MM-SS}/{releaseCandidate}.war /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/", function (done) {
+                    var releaseCandidateToCopy = releaseCandidateDir + "/" + dummyReleaseCandidateName;
+                    var copiedReleaseCandidate = tomcatReleaseDir + "/server#/webapps/" + dummyReleaseCandidateName;
+                    automate.copy(releaseCandidateToCopy, copiedReleaseCandidate.replace("#", "1"), function (error) {
+                        assert.isNull(error);
+                        automate.copy(releaseCandidateToCopy, copiedReleaseCandidate.replace("#", "2"), function (error) {
+                            assert.isNull(error);
+                            fileSystem.access(copiedReleaseCandidate.replace("#", "1"), function (error) {
+                                assert.isNull(error);
+                                fileSystem.access(copiedReleaseCandidate.replace("#", "2"), function (error) {
+                                    assert.isNull(error);
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
             });
         });
         describe("Rename new release candidates to appropriate application name (e.g. mom.war).", function () {
