@@ -125,10 +125,10 @@ describe("Pre-deployment steps", function () {
                 // not doing this for now
             });
             it("sudo wget --user={user} --password={password} http://{domain}/{releaseCandidateURI}", function (done) {
-                var expectedReleaseCondidateAfterGet = releaseCandidateDir + "/" + dummyReleaseCandidateName;
-                automate.getReleaseCandidates(dummyReleaseCandidate, expectedReleaseCondidateAfterGet, function (error) {
+                var expectedReleaseCandidateAfterGet = releaseCandidateDir + "/" + dummyReleaseCandidateName;
+                automate.getReleaseCandidates(dummyReleaseCandidate, expectedReleaseCandidateAfterGet, function (error) {
                     assert.isNull(error);
-                    fileSystem.access(expectedReleaseCondidateAfterGet, function (error) {
+                    fileSystem.access(expectedReleaseCandidateAfterGet, function (error) {
                         assert.isNull(error);
                         done();
                     });
@@ -136,9 +136,27 @@ describe("Pre-deployment steps", function () {
             });
         });
         describe("Delete any old application folders and war files from the servlet container", function () {
-            describe("For example, if you are releasing a new version of map display, then remove its old expanded mom folder", function () {
-                it("sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}", function () {
-
+            describe("For example, if you are releasing a new version of an app, then remove its old expanded app folder", function () {
+                it("sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}", function (done) {
+                    automate.deleteOldRelease(tomcatReleaseDir + "/server1/webapps/app*", function (error) {
+                        assert.isNull(error);
+                        automate.deleteOldRelease(tomcatReleaseDir + "/server2/webapps/app*", function (error) {
+                            assert.isNull(error);
+                            fileSystem.access(tomcatReleaseDir + "/server1/webapps/app.war", function (error) {
+                                assert.isNotNull(error);
+                                fileSystem.access(tomcatReleaseDir + "/server2/webapps/app.war", function (error) {
+                                    assert.isNotNull(error);
+                                    fileSystem.access(tomcatReleaseDir + "/server1/webapps/app", function (error) {
+                                        assert.isNotNull(error);
+                                        fileSystem.access(tomcatReleaseDir + "/server2/webapps/app", function (error) {
+                                            assert.isNotNull(error);
+                                            done();
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
                 it("sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}.war", function () {
 
