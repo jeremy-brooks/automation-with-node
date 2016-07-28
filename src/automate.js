@@ -13,7 +13,7 @@ exports.getReleaseCandidates = function (dummyReleaseCandidate, releaseCandidate
     ncp(dummyReleaseCandidate, releaseCandidateDir, callback);
 };
 
-exports.deleteOldRelease = function (releaseToDelete, callback) {
+exports.remove = function (releaseToDelete, callback) {
     fileSystem.remove(releaseToDelete, callback);
 };
 

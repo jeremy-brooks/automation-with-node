@@ -138,9 +138,9 @@ describe("Pre-deployment steps", function () {
         describe("Delete any old application folders and war files from the servlet container", function () {
             describe("For example, if you are releasing a new version of an app, then remove its old expanded app folder", function () {
                 it("sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}", function (done) {
-                    automate.deleteOldRelease(tomcatReleaseDir + "/server1/webapps/app", function (error) {
+                    automate.remove(tomcatReleaseDir + "/server1/webapps/app", function (error) {
                         assert.isNull(error);
-                        automate.deleteOldRelease(tomcatReleaseDir + "/server2/webapps/app", function (error) {
+                        automate.remove(tomcatReleaseDir + "/server2/webapps/app", function (error) {
                             assert.isNull(error);
                             fileSystem.access(tomcatReleaseDir + "/server1/webapps/app", function (error) {
                                 assert.isNotNull(error);
@@ -153,9 +153,9 @@ describe("Pre-deployment steps", function () {
                     });
                 });
                 it("sudo rm -rf /var/tmp/tomcatRelease_{YYYYMMDDTHH-MM-SS}/server{#}/webapps/{applicationName}.war", function (done) {
-                    automate.deleteOldRelease(tomcatReleaseDir + "/server1/webapps/app.war", function (error) {
+                    automate.remove(tomcatReleaseDir + "/server1/webapps/app.war", function (error) {
                         assert.isNull(error);
-                        automate.deleteOldRelease(tomcatReleaseDir + "/server2/webapps/app.war", function (error) {
+                        automate.remove(tomcatReleaseDir + "/server2/webapps/app.war", function (error) {
                             assert.isNull(error);
                             fileSystem.access(tomcatReleaseDir + "/server1/webapps/app.war", function (error) {
                                 assert.isNotNull(error);
